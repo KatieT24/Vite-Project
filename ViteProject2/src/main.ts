@@ -1,7 +1,7 @@
 import "./style.css";
 console.log("Hellow Vite!");
 import "bootstrap/dist/css/bootstrap.min.css";
-import { fetchData, postData } from "./services";
+import "./services";
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 <div class="container mt-5">
