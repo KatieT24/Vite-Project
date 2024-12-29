@@ -1,46 +1,24 @@
-import "./style.css";
-console.log("Hellow Vite!");
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./services";
+import './style.css'
+import typescriptLogo from './typescript.svg'
+import viteLogo from '/vite.svg'
+import { setupCounter } from './counter.ts'
 
-document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
-<div class="container mt-5">
-      <h1 class="mb-4">Contacts List</h1>
-
-      <!-- Form Container -->
-      <div id="form-container" class="mb-4">
-        <form id="addContactForm" class="row mb-4">
-          <div class="col-md-4">
-            <input
-              type="text"
-              class="form-control"
-              id="contactName"
-              placeholder="Name"
-              required
-            />
-          </div>
-          <div class="col-md-4">
-            <input
-              type="text"
-              class="form-control"
-              id="contactPhone"
-              placeholder="Phone Number"
-              required
-            />
-          </div>
-          <div class="col-md-4">
-            <button type="submit" class="btn btn-primary w-100">
-              Add Contact
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Three Columns for Contacts -->
-      <div class="row" id="contact-columns">
-        <div class="col-md-4" id="column-1"></div>
-        <div class="col-md-4" id="column-2"></div>
-        <div class="col-md-4" id="column-3"></div>
-      </div>
+document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
+  <div>
+    <a href="https://vite.dev" target="_blank">
+      <img src="${viteLogo}" class="logo" alt="Vite logo" />
+    </a>
+    <a href="https://www.typescriptlang.org/" target="_blank">
+      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
+    </a>
+    <h1>Vite + TypeScript</h1>
+    <div class="card">
+      <button id="counter" type="button"></button>
     </div>
-`;
+    <p class="read-the-docs">
+      Click on the Vite and TypeScript logos to learn more
+    </p>
+  </div>
+`
+
+setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
