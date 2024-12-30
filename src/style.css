@@ -1,0 +1,27 @@
+body {
+  background-color: #838a8b;
+}
+
+.card {
+  margin-bottom: 20px; /* Add some space between cards */
+}
+
+.card-title {
+  color: #0c3560; /* Make the card title blue */
+}
+
+.card-footer {
+  text-align: right; /* Align the delete button to the right */
+}
+
+#contactName,
+#ContactPhone {
+  max-width: 200px;
+}
+
+#addContactForm {
+  border: 2px solid darkred;
+  padding: 10px;
+  background-color: #f8f9fa;
+  margin-bottom: 20px;
+}
