@@ -78,8 +78,20 @@ export async function fetchData() {
 
 //NOTE - working on addContact funtion next for servicies.
 
-export async function addContact(name: string, phone: number) {
+export async function addContact(name: string, phone: string) {
   try {
+    //NOTE - due to issues with submitting the phone #
+    // I had to learn about Regex to fix the issue
+    // this link is where i learned about it to make the string work.
+    // https://upmostly.com/typescript/string-handling-made-easy-a-guide-to-regex-in-typescript
+
+    //NOTE - validating the phone number
+    const phoneRegex = /^\(\w{3}\)\s\d{3}-\d{2}$/;
+    if (phoneRegex.test(phone.toString())) {
+      throw new Error("ivalid phoine number format. expected format:");
+      return;
+    }
+
     const response = await fetch(API_ENDPOINT, {
       method: "POST",
       headers: {
@@ -153,8 +165,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-export function handleFormSubmit(e: Event) {
-  e.preventDefault();
+export function handleFormSubmit(event: Event) {
+  event.preventDefault();
 
   const nameElement = document.getElementById(
     "contactName"
@@ -169,21 +181,40 @@ export function handleFormSubmit(e: Event) {
   console.log("Form submitted with:", { name, phone });
 
   // Only add contact if both name and phone are provided
-  //NOTE - had to add parsInt to fix issues with the phone number as it's not a string.
+  //NOTE - no mare pars as it was not allowing other numbers/letters to be entered
+  // using Regex to validate the formats
   if (name && phone) {
-    const phoneNumber = parseInt(phone, 10);
-
-    if (!isNaN(phoneNumber)) {
-      addContact(name, phoneNumber);
-
+    const phoneRegex = /^\(\w{3}\)\d{3}-\w{2}\d{2}$/;
+    if (!phoneRegex.test(phone)) {
+      //NOTE - commented out parse just in case it was needed later
+      // const phoneNumber = parseInt(phone, 10);
+      // if (!isNaN(phoneNumber)) {
+      // addContact(name, phoneNumber);
       // Clear form inputs
-      if (nameElement) nameElement.value = "";
-      if (phoneElement) phoneElement.value = "";
-    } else {
+      // if (nameElement) nameElement.value = "";
+      // if (phoneElement) phoneElement.value = "";
+      // } else {
       console.error("Invalid phone number entered.");
+      // }
+      // } else {
+      // console.error("Name or phone number is missing.");
+
+      if (phoneElement) {
+        phoneElement.value = "";
+      }
+      return;
+    }
+
+    addContact(name, phone);
+
+    if (nameElement) {
+      nameElement.value = "";
+    }
+    if (phoneElement) {
+      phoneElement.value = "";
     }
   } else {
-    console.error("Name or phone number is missing.");
+    console.error("name or phone number is missing");
   }
 }
 
