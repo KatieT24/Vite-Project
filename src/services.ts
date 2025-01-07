@@ -117,6 +117,49 @@ export async function addContact(name: string, phone: number) {
   }
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("addContactForm");
+  if (!form) {
+    console.error("Form element with ID 'addContactForm' not found.");
+    return;
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    // Capture form input values
+    const nameElement = document.getElementById(
+      "contactName"
+    ) as HTMLInputElement | null;
+    const phoneElement = document.getElementById(
+      "contactPhone"
+    ) as HTMLInputElement | null;
+
+    const name = nameElement?.value.trim() || "";
+    const phone = phoneElement?.value.trim() || "";
+
+    console.log("Form was submitted with:", { name, phone });
+
+    // Only add contact if both name and phone are provided
+    //NOTE - had to add parsInt to fix issues with the phone number as it's not a string.
+    if (name && phone) {
+      const phoneNumber = parseInt(phone, 10);
+
+      if (!isNaN(phoneNumber)) {
+        addContact(name, phoneNumber);
+
+        // Clear form inputs
+        if (nameElement) nameElement.value = "";
+        if (phoneElement) phoneElement.value = "";
+      } else {
+        console.log("Invalid phone number entered.");
+      }
+    } else {
+      console.log("Name or phone number is missing.");
+    }
+  });
+});
+
 export async function deleteContact(id: string, elementId: string) {
   try {
     console.log("attempting to delete contact ID:", id);
