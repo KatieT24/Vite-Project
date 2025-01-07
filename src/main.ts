@@ -1,6 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./style.css"; // Replace with the actual path to your custom CSS file
 import "./services";
+import "./counter";
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
  <div class="container mt-5">

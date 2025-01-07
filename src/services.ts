@@ -14,17 +14,21 @@ console.log("Contacts Element:", contactsElement);
 interface Contact {
   name: string;
   phone: string;
+  id: string;
 }
 
+// NOTE - Function to generate HTML for a contact card
 export function handleContact(contact: Contact) {
-  //NOTE - fixing contact  to handle contact
   console.log("Creating HTML for contact:", contact);
 
   return `
-    <div class="card mb-3" style="width: 18rem;">
+    <div class="card mb-3" style="width: 18rem;" id="contact-${
+      contact.id
+    }" data-id="${contact.id}">
       <div class="card-body">
         <h5 class="card-title">${contact.name}</h5>
         <p class="card-text">Phone: ${contact.phone || "No phone available"}</p>
+        <button class="btn btn-danger delete-btn">Delete</button>
       </div>
     </div>
   `;
@@ -67,14 +71,8 @@ export async function fetchData() {
         column3.insertAdjacentHTML("beforeend", contactHTML);
       }
     });
-
-    //NOTE -
   } catch (error) {
-    if (error instanceof Error) {
-      console.error("Error fetching data:", error.message);
-    } else {
-      console.error("Unknown Error:", error);
-    }
+    console.error("Error fetching data:", error);
   }
 }
 
@@ -106,87 +104,141 @@ export async function addContact(name: string, phone: number) {
       );
     }
     fetchData();
-
-    //NOTE - used typegaurd to fix the issue with the error of unknown type.
   } catch (error) {
-    if (error instanceof Error) {
-      console.error(error.message);
-    } else {
-      console.error("Error adding contact:", error);
-    }
+    console.error(
+      "Error adding contact:",
+      error instanceof Error ? error.message : error
+    );
   }
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  const form = document.getElementById("addContactForm");
-  if (!form) {
-    console.error("Form element with ID 'addContactForm' not found.");
-    return;
-  }
+document
+  .getElementById("add-contact-btn")
+  ?.addEventListener("click", async () => {
+    const name = (document.getElementById("name") as HTMLInputElement).value;
+    const phone = (document.getElementById("phone") as HTMLInputElement).value;
 
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    // Capture form input values
-    const nameElement = document.getElementById(
-      "contactName"
-    ) as HTMLInputElement | null;
-    const phoneElement = document.getElementById(
-      "contactPhone"
-    ) as HTMLInputElement | null;
-
-    const name = nameElement?.value.trim() || "";
-    const phone = phoneElement?.value.trim() || "";
-
-    console.log("Form was submitted with:", { name, phone });
-
-    // Only add contact if both name and phone are provided
-    //NOTE - had to add parsInt to fix issues with the phone number as it's not a string.
     if (name && phone) {
-      const phoneNumber = parseInt(phone, 10);
+      try {
+        const response = await fetch("http://your-api-url/contacts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name, phone }),
+        });
 
-      if (!isNaN(phoneNumber)) {
-        addContact(name, phoneNumber);
-
-        // Clear form inputs
-        if (nameElement) nameElement.value = "";
-        if (phoneElement) phoneElement.value = "";
-      } else {
-        console.log("Invalid phone number entered.");
+        if (response.ok) {
+          const newContact = await response.json();
+          createHTML(newContact); // Add to the DOM dynamically
+        } else {
+          console.error("Failed to add contact.");
+        }
+      } catch (error) {
+        console.error("Error:", error);
       }
     } else {
-      console.log("Name or phone number is missing.");
+      alert("Please fill in both name and phone fields.");
     }
   });
+
+//NOTE - used typegaurd to fix the issue with the error of unknown type.
+
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("addContactForm");
+  if (form) {
+    form.addEventListener("submit", handleFormSubmit); // Usage here
+  } else {
+    console.error("Form element with ID 'addContactForm' not found.");
+  }
 });
+
+export function handleFormSubmit(e: Event) {
+  e.preventDefault();
+
+  const nameElement = document.getElementById(
+    "contactName"
+  ) as HTMLInputElement | null;
+  const phoneElement = document.getElementById(
+    "contactPhone"
+  ) as HTMLInputElement | null;
+
+  const name = nameElement?.value.trim() || "";
+  const phone = phoneElement?.value.trim() || "";
+
+  console.log("Form submitted with:", { name, phone });
+
+  // Only add contact if both name and phone are provided
+  //NOTE - had to add parsInt to fix issues with the phone number as it's not a string.
+  if (name && phone) {
+    const phoneNumber = parseInt(phone, 10);
+
+    if (!isNaN(phoneNumber)) {
+      addContact(name, phoneNumber);
+
+      // Clear form inputs
+      if (nameElement) nameElement.value = "";
+      if (phoneElement) phoneElement.value = "";
+    } else {
+      console.error("Invalid phone number entered.");
+    }
+  } else {
+    console.error("Name or phone number is missing.");
+  }
+}
 
 export async function deleteContact(id: string, elementId: string) {
   try {
-    console.log("attempting to delete contact ID:", id);
+    console.log("Attempting to delete contact ID:", id);
 
     const response = await fetch(`${API_ENDPOINT}/${id}`, {
       method: "DELETE",
     });
+
     if (!response.ok) {
-      throw new Error(`Failed to Delete contact. 
-      Status: ${response.status}`);
+      throw new Error(`Failed to delete contact. Status: ${response.status}`);
     }
 
-    console.log(`Contact with the ID ${id} deleted successfully`);
+    console.log(`Contact with ID ${id} deleted successfully`);
 
-    //NOTE - remoing the element from the DOM
+    // Remove the element from the DOM
     const element = document.getElementById(elementId);
     if (element) {
       element.remove();
     } else {
       console.error(`Element with ID ${elementId} not found`);
     }
+
+    // Refresh the contact list
     fetchData();
   } catch (error) {
-    if (error instanceof Error) {
-      console.error(error.message);
-    } else {
-      console.error("Error deleating contact:", error);
+    console.error(
+      "Error deleting contact:",
+      error instanceof Error ? error.message : error
+    );
+  }
+}
+
+//NOTE - added the deleteContact to the window object to be able to acess the delete button.
+window.deleteContact = deleteContact;
+
+//NOTE - continueation of the delete contact function.
+
+document.addEventListener("click", (event) => {
+  const target = event.target as HTMLElement | null;
+
+  if (target && target.classList.contains("delete-btn")) {
+    const contactCard = target.closest(".card");
+
+    if (contactCard instanceof HTMLElement && contactCard.dataset.id) {
+      const contactId = contactCard.dataset.id;
+      deleteContact(contactId, contactCard.id);
     }
+  }
+});
+export function createHTML(newContact: Contact) {
+  const contactsElement = document.getElementById("contacts");
+  if (contactsElement) {
+    contactsElement.insertAdjacentHTML("beforeend", handleContact(newContact));
   }
 }
