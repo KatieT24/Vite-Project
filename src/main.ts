@@ -27,6 +27,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
               placeholder="Phone Number"
               required
             />
+            <div id="validation"></div>
           </div>
           <div class="col-md-4">
             <button type="submit" class="btn btn-primary w-100">

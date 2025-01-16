@@ -86,7 +86,7 @@ export async function addContact(name: string, phone: string) {
     // https://upmostly.com/typescript/string-handling-made-easy-a-guide-to-regex-in-typescript
 
     //NOTE - validating the phone number
-    const phoneRegex = /^\(\w{3}\)\s\d{3}-\d{2}$/;
+    const phoneRegex = /^\([A-Za-z0-9]{3}\)\s[A-Za-z0-9]{3}-[A-Za-z0-9]{4}$/;
     if (phoneRegex.test(phone.toString())) {
       throw new Error("ivalid phoine number format. expected format:");
       return;
@@ -181,10 +181,13 @@ export function handleFormSubmit(event: Event) {
   console.log("Form submitted with:", { name, phone });
 
   // Only add contact if both name and phone are provided
-  //NOTE - no mare pars as it was not allowing other numbers/letters to be entered
+  //NOTE - no more pars as it was not allowing other numbers/letters to be entered
   // using Regex to validate the formats
+  //NOTE - fixed the phone number issues with Regex
   if (name && phone) {
-    const phoneRegex = /^\(\w{3}\)\d{3}-\w{2}\d{2}$/;
+    const phoneRegex =
+      /^(\([A-Za-z0-9]{3}\)\s?[A-Za-z0-9]{3}-[A-Za-z0-9]{4}|[A-Za-z0-9]{3}-[A-Za-z0-9]{4})$/;
+
     if (!phoneRegex.test(phone)) {
       //NOTE - commented out parse just in case it was needed later
       // const phoneNumber = parseInt(phone, 10);
